@@ -1,0 +1,19 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { site } from '../config';
+---
+<Layout title="关于" section="about">
+  <article class="article about">
+    <header class="article-header">
+      <p class="eyebrow">ABOUT ME</p>
+      <h1>你好，<br />我是{site.author}。</h1>
+      <p class="article-description">一名计算机研究生，在这里表达自己，记录自己。</p>
+    </header>
+    <div class="prose">
+      <h2>我感兴趣的事</h2>
+      <p>我对 AI 和 Agent 感兴趣，也喜欢阅读、投资和运动。</p>
+      <h2>为什么写博客</h2>
+      <p>想给自己一个表达和记录的地方。这就是我开始写这个博客的原因。</p>
+    </div>
+  </article>
+</Layout>

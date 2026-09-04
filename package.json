@@ -1,0 +1,12 @@
+{
+  "name": "personal-notes",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --host 0.0.0.0",
+    "build": "astro build",
+    "preview": "astro preview --host 0.0.0.0",
+    "test": "npm run build && node --experimental-strip-types scripts/check.mjs"
+  },
+  "dependencies": { "astro": "^7.3.1" }
+}

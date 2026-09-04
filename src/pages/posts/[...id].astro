@@ -1,0 +1,18 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import { href, formatDate } from '../../config';
+export async function getStaticPaths() {
+  return (await getCollection('posts')).map(post => ({ params: { id: post.id }, props: { post } }));
+}
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+<Layout title={post.data.title} description={post.data.description}>
+  <article class="article">
+    <a class="back-link" href={href()}>← 所有文章</a>
+    <header class="article-header"><p class="eyebrow">{post.data.category} / 示例文章</p><h1>{post.data.title}</h1><p class="article-description">{post.data.description}</p><time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time></header>
+    <div class="prose"><Content /></div>
+    <div class="article-end"><span>— 写于此，留待以后。</span><a class="back-link" href={href()}>返回文章列表 ↗</a></div>
+  </article>
+</Layout>

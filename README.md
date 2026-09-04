@@ -1,135 +1,57 @@
-# Chirpy Starter
+# Yi’s Blog
 
-[![Gem Version](https://img.shields.io/gem/v/jekyll-theme-chirpy)][gem]&nbsp;
-[![GitHub license](https://img.shields.io/github/license/cotes2020/chirpy-starter.svg?color=blue)][mit]
+Astro 静态博客，暖白配色，适配电脑与手机。需要 Node.js 22.12+。
 
-When installing the [**Chirpy**][chirpy] theme through [RubyGems.org][gem], Jekyll can only read files in the folders
-`_data`, `_layouts`, `_includes`, `_sass` and `assets`, as well as a small part of options of the `_config.yml` file
-from the theme's gem. If you have ever installed this theme gem, you can use the command
-`bundle info --path jekyll-theme-chirpy` to locate these files.
+## 本地预览
 
-The Jekyll team claims that this is to leave the ball in the user’s court, but this also results in users not being
-able to enjoy the out-of-the-box experience when using feature-rich themes.
-
-To fully use all the features of **Chirpy**, you need to copy the other critical files from the theme's gem to your
-Jekyll site. The following is a list of targets:
-
-```shell
-.
-├── _config.yml
-├── _plugins
-├── _tabs
-└── index.html
+```sh
+npm install
+npm run dev
 ```
 
-To save you time, and also in case you lose some files while copying, we extract those files/configurations of the
-latest version of the **Chirpy** theme and the [CD][CD] workflow to here, so that you can start writing in minutes.
+打开终端给出的地址，默认 http://localhost:4321 。
 
-## Usage
+## 写文章
 
-Check out the [theme's docs](https://github.com/cotes2020/jekyll-theme-chirpy/wiki).
+在 `src/content/posts/` 新增 Markdown 文件，文件名就是文章地址。示例：
 
-## Blog Workflow
-
-This repository is used as a personal blog based on Jekyll + Chirpy and deployed with GitHub Pages.
-
-### One-time setup
-
-1. Push this repository to GitHub.
-2. In GitHub repository settings, open `Settings > Pages` and make sure the site is deployed from `GitHub Actions`.
-3. Update site settings in [`_config.yml`](./_config.yml), especially:
-   - `title`
-   - `description`
-   - `url`
-   - `baseurl`
-   - `social`
-   - `avatar`
-
-Notes:
-
-- If the repository name is `<username>.github.io`, usually set:
-  - `url: "https://<username>.github.io"`
-  - `baseurl: ""`
-- If the repository name is a project repo like `my-blog`, usually set:
-  - `url: "https://<username>.github.io"`
-  - `baseurl: "/my-blog"`
-
-### Writing a new post
-
-Create a Markdown file under [`_posts`](./_posts) using this filename format:
-
-```text
-YYYY-MM-DD-title.md
-```
-
-Example:
-
-```text
-2026-03-28-my-first-post.md
-```
-
-Suggested front matter:
-
-```md
+```markdown
 ---
-title: My First Post
-date: 2026-03-28 20:00:00 +0800
-categories: [blog]
-tags: [jekyll, github-pages]
+title: 新的一篇
+date: 2026-09-05
+description: 文章摘要。
+category: 技术手记
 ---
+
+这里是正文。
 ```
 
-### Local preview
+本地图片放入 `src/assets/`，从 Markdown 使用相对路径引用。现有三篇均为示例文章，可以直接删除或替换；首页与文章页的“示例”标记也请在正式发布时移除。
 
-Run the site locally before publishing:
+## 修改外观
 
-```bash
-bundle install
-bundle exec jekyll serve --livereload
+- `src/config.ts`：站点名称、署名与介绍。
+- `src/styles/global.css`：顶部 CSS 变量控制颜色、字体、行宽、边距；媒体查询控制手机排版。
+- `src/pages/about.astro`：关于页介绍。
+
+## 构建与验证
+
+```sh
+npm test
+npm run preview
 ```
 
-Then open:
+构建产物在 `dist/`。推送到 `main` 后，GitHub Actions 自动构建并发布到 https://s0meb0dy3.github.io/ 。在仓库的 Actions 页面查看部署进度。项目子路径可这样验证：
 
-```text
-http://127.0.0.1:4000
+```sh
+BASE_PATH=/blog npm test
+BASE_PATH=/blog npm run preview
 ```
 
-### Publish flow
+此时访问 `/blog/`。根域名部署使用默认配置。发布前替换示例内容。
 
-After confirming the page looks right locally:
+## 每日摘句
 
-```bash
-git add .
-git commit -m "publish: add new post"
-git push origin main
-```
+编辑 `src/data/quotes.json` 添加收藏的句子，字段为 `text`（原文）、`source`（书名或出处）、`author`（署名）、`translation`（译文，没有则填空字符串）。首条按用户提供的微信读书截图录入，署名沿用图片，未独立考证。
 
-### Deployment
-
-This repository already includes a GitHub Actions workflow at
-[`/.github/workflows/pages-deploy.yml`](./.github/workflows/pages-deploy.yml).
-
-When you push to `main` or `master`, GitHub Actions will automatically:
-
-1. install dependencies
-2. build the Jekyll site
-3. deploy it to GitHub Pages
-
-In short:
-
-```text
-Write post -> Preview locally -> git push -> GitHub Pages auto deploy
-```
-
-## Contributing
-
-This repository is automatically updated with new releases from the theme repository. If you encounter any issues or want to contribute to its improvement, please visit the [theme repository][chirpy] to provide feedback.
-
-## License
-
-This work is published under [MIT][mit] License.
-
-[gem]: https://rubygems.org/gems/jekyll-theme-chirpy
-[chirpy]: https://github.com/cotes2020/jekyll-theme-chirpy/
-[CD]: https://en.wikipedia.org/wiki/Continuous_deployment
-[mit]: https://github.com/cotes2020/chirpy-starter/blob/master/LICENSE
+从 2026-09-04 起按北京时间的日期依次循环；同一天所有访客看到同一句。页面加载、返回标签页或跨日后的首次分钟检查会更新，静态托管不需要每天重新部署。添加记录后需重新构建发布；只有一条时保持显示，无 JavaScript 时显示首条。

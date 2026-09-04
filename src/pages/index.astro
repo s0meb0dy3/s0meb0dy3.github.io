@@ -1,0 +1,46 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import { href, formatDate } from '../config';
+import quotes from '../data/quotes.json';
+const firstQuote = quotes[0];
+const posts = (await getCollection('posts')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+<Layout>
+  <section class="intro" aria-labelledby="intro-title">
+    <p class="eyebrow"><span class="small-line"></span> 每日摘句 · DAILY QUOTE</p>
+    <h1 id="intro-title" class="daily-quote">{firstQuote.text}</h1>
+    <p id="quote-translation" class="quote-translation" hidden={!firstQuote.translation}>{firstQuote.translation}</p>
+    <p class="intro-description">— <span id="quote-author">{firstQuote.author}</span><cite id="quote-source">{firstQuote.source && ` · ${firstQuote.source}`}</cite></p>
+  </section>
+  <section class="writing" aria-labelledby="writing-title">
+    <div class="section-heading"><h2 id="writing-title">最近的文字 <span>RECENT NOTES</span></h2><span class="count">{String(posts.length).padStart(2, '0')} 篇</span></div>
+    <ol class="post-list">
+      {posts.map((post) => <li>
+        <a class="post-link" href={href(`posts/${post.id}/`)}>
+          <div class="post-meta"><time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time><span>{post.data.category} · 示例</span></div>
+          <div class="post-copy"><h3>{post.data.title}</h3><p>{post.data.description}</p></div>
+          <span class="post-arrow" aria-hidden="true">↗</span>
+        </a>
+      </li>)}
+    </ol>
+  </section>
+</Layout>
+
+<script>
+  import quotes from '../data/quotes.json';
+  import { quoteIndex } from '../quote';
+  function updateQuote() {
+    const quote = quotes[quoteIndex(quotes.length)];
+    document.getElementById('intro-title')!.textContent = quote.text;
+    const translation = document.getElementById('quote-translation')!;
+    translation.textContent = quote.translation;
+    translation.hidden = !quote.translation;
+    document.getElementById('quote-author')!.textContent = quote.author;
+    document.getElementById('quote-source')!.textContent = quote.source ? ` · ${quote.source}` : '';
+  }
+  updateQuote();
+  // Recheck on returning to the tab, including after the device sleeps overnight.
+  document.addEventListener('visibilitychange', updateQuote);
+  setInterval(updateQuote, 60_000);
+</script>
