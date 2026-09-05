@@ -8,8 +8,9 @@ const posts = (await getCollection('posts')).sort((a, b) => b.data.date.valueOf(
 ---
 <Layout>
   <section class="intro" aria-labelledby="intro-title">
-    <p class="eyebrow"><span class="small-line"></span> 每日摘句 · DAILY QUOTE</p>
-    <h1 id="intro-title" class="daily-quote">{firstQuote.text}</h1>
+    <p class="eyebrow">每日摘句 <span lang="en">DAILY QUOTE</span></p>
+    <span class="quote-mark" aria-hidden="true">“</span>
+    <h1 id="intro-title" class="daily-quote" lang={firstQuote.translation ? 'en' : 'zh-CN'}>{firstQuote.text}</h1>
     <p id="quote-translation" class="quote-translation" hidden={!firstQuote.translation}>{firstQuote.translation}</p>
     <p class="intro-description">— <span id="quote-author">{firstQuote.author}</span><cite id="quote-source">{firstQuote.source && ` · ${firstQuote.source}`}</cite></p>
   </section>
@@ -32,7 +33,9 @@ const posts = (await getCollection('posts')).sort((a, b) => b.data.date.valueOf(
   import { quoteIndex } from '../quote';
   function updateQuote() {
     const quote = quotes[quoteIndex(quotes.length)];
-    document.getElementById('intro-title')!.textContent = quote.text;
+    const title = document.getElementById('intro-title')!;
+    title.textContent = quote.text;
+    title.lang = quote.translation ? 'en' : 'zh-CN';
     const translation = document.getElementById('quote-translation')!;
     translation.textContent = quote.translation;
     translation.hidden = !quote.translation;
