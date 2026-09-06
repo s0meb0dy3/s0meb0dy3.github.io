@@ -15,13 +15,15 @@ const posts = (await getCollection('posts')).sort((a, b) => b.data.date.valueOf(
     <p class="intro-description">— <span id="quote-author">{firstQuote.author}</span><cite id="quote-source">{firstQuote.source && ` · ${firstQuote.source}`}</cite></p>
   </section>
   <section class="writing" aria-labelledby="writing-title">
-    <div class="section-heading"><h2 id="writing-title">最近的文字 <span>RECENT NOTES</span></h2><span class="count">{String(posts.length).padStart(2, '0')} 篇</span></div>
+    <div class="section-heading"><h2 id="writing-title">文章</h2></div>
     <ol class="post-list">
       {posts.map((post) => <li>
         <a class="post-link" href={href(`posts/${post.id}/`)}>
-          <div class="post-meta"><time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time><span>{post.data.category} · 示例</span></div>
-          <div class="post-copy"><h3>{post.data.title}</h3><p>{post.data.description}</p></div>
-          <span class="post-arrow" aria-hidden="true">↗</span>
+          <h3>{post.data.title}{post.data.sample && <span class="sample-label">示例</span>}</h3>
+          <div class="post-meta">
+            <span class="post-category">{post.data.category}</span>
+            <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+          </div>
         </a>
       </li>)}
     </ol>

@@ -2,13 +2,21 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 const base = (process.env.BASE_PATH || '/').replace(/\/$/, '');
 const html = readFileSync('dist/index.html', 'utf8');
-const ids = ['less-but-better', 'reading-layout', 'slow-afternoon'];
+const ids = ['who-am-i'];
 let previous = -1;
 for (const id of ids) {
   const position = html.indexOf(`href="${base}/posts/${id}/"`);
   assert(position > previous, `${id}: missing link or incorrect date order`);
   previous = position;
-  assert(readFileSync(`dist/posts/${id}/index.html`, 'utf8').includes('示例'));
+  const article = readFileSync(`dist/posts/${id}/index.html`, 'utf8');
+  assert.equal(article.includes('示例文章'), id !== 'who-am-i');
+  if (id === 'who-am-i') {
+    assert(article.includes('愿我们都可以找到'));
+    assert(article.includes('<ol>'));
+    assert(article.includes('观影'));
+    assert(!article.includes('写于此，留待以后'));
+    assert(html.includes('class="post-category">观影</span>'));
+  }
 }
 assert(html.includes(`href="${base}/about/"`));
 assert(readFileSync('dist/about/index.html', 'utf8').includes('计算机研究生'));
