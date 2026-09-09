@@ -6,13 +6,47 @@ export async function getStaticPaths() {
   return (await getCollection('posts')).map(post => ({ params: { id: post.id }, props: { post } }));
 }
 const { post } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
+const toc = headings.filter(h => h.depth === 2);
 ---
 <Layout title={post.data.title} description={post.data.description}>
   <article class="article">
     <a class="back-link" href={href()}>← 所有文章</a>
     <header class="article-header"><p class="eyebrow">{post.data.category}{post.data.sample && ' / 示例文章'}</p><h1>{post.data.title}</h1><p class="article-description">{post.data.description}</p><time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time></header>
     <div class="prose"><Content /></div>
+    {toc.length > 0 && (
+      <nav class="toc" aria-label="目录">
+        <ul>{toc.map(h => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ul>
+      </nav>
+    )}
     <div class="article-end"><a class="back-link" href={href()}>返回文章列表 ↗</a></div>
   </article>
 </Layout>
+<script>
+  const links = Array.from(document.querySelectorAll('.toc a')) as HTMLAnchorElement[];
+  if (links.length > 0) {
+    const sections = links
+      .map((a) => document.getElementById(decodeURIComponent(a.hash.slice(1))))
+      .filter((el): el is HTMLElement => el !== null);
+    let current = -1;
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      let index = -1;
+      for (let i = 0; i < sections.length; i++) {
+        if (sections[i].getBoundingClientRect().top <= 130) index = i;
+        else break;
+      }
+      if (index === current) return;
+      current = index;
+      links.forEach((a, i) => a.classList.toggle('active', i === current));
+    };
+    document.addEventListener('scroll', () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    }, { passive: true });
+    update();
+  }
+</script>

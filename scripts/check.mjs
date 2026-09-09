@@ -19,7 +19,11 @@ for (const id of ids) {
   }
 }
 assert(html.includes(`href="${base}/about/"`));
-assert(readFileSync('dist/about/index.html', 'utf8').includes('计算机研究生'));
+const about = readFileSync('dist/about/index.html', 'utf8');
+assert(about.includes('Peter Yao'));
+assert(about.includes('Find me'));
+assert(about.includes('github.com/s0meb0dy3'));
+assert(about.includes('yzoziyi103@hotmail.com'));
 console.log('Passed: all pages, article order, sample labels and base-prefixed links.');
 
 const { quoteIndex } = await import('../src/quote.ts');
