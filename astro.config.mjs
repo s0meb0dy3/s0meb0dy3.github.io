@@ -5,5 +5,5 @@ export default defineConfig({
   site: 'https://s0meb0dy3.github.io',
   devToolbar: { enabled: false },
   base: process.env.BASE_PATH || '/',
-  markdown: { shikiConfig: { theme: 'github-light' } },
+  markdown: { shikiConfig: { theme: 'github-dark' } },
 });

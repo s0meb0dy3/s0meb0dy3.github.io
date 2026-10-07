@@ -327,8 +327,10 @@ nav a[aria-current]:after {
   max-width:100%;
   overflow-x:auto;
   padding:20px;
-  border:1px solid var(--line);
-  border-radius:3px;
+  background:#0d1117;
+  color:#e6edf3;
+  border:1px solid #30363d;
+  border-radius:6px;
   font-size:13px;
   line-height:1.8
 }
@@ -605,4 +607,3 @@ nav a:hover, .back-link:hover { color:var(--accent); }
     display:none;
   }
 }
-
