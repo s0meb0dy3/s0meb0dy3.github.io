@@ -1,6 +1,6 @@
 ---
 title: Jev：AI 除了生成文字，还能直接做决策
-date: 2026-9-25
+date: 2026-09-25
 description: Jev 的结构化决策、API 使用，以及一次浏览器语音自动化实践。
 category: 技术
 ---
