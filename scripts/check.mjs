@@ -37,3 +37,23 @@ assert.equal(quoteIndex(1), 0);
 assert.throws(() => quoteIndex(0));
 assert(html.includes('凡事往简单处想，往认真处行。'));
 console.log('Passed: daily quote, Beijing midnight, wraparound and single-entry record.');
+
+const quotes = JSON.parse(readFileSync('src/data/quotes.json', 'utf8'));
+const collection = readFileSync('dist/quotes/index.html', 'utf8');
+assert(html.includes(`href="${base}/quotes/"`));
+assert(collection.includes('aria-current="page">摘句</a>'));
+const daily = JSON.parse(html.match(/data-quotes="([^"]*)"/)[1].replaceAll('&quot;', '"').replaceAll('&amp;', '&'));
+assert.equal(daily.length, quotes.length);
+for (const [i, quote] of quotes.entries()) {
+  assert.equal(daily[i].author, quote.author);
+  assert.equal(daily[i].displayText.replace(/\s/g, ''), quote.text.replace(/\s/g, ''), 'display line breaks must preserve the original quote');
+  assert(collection.includes(`id="${quote.portrait}"`));
+  assert(collection.includes(quote.text));
+  assert(daily[i].image.startsWith(`${base}/_astro/`), 'portrait must respect the deployment base');
+  assert(daily[i].image.endsWith('.webp'), 'ship optimized portraits');
+  readFileSync(`dist${daily[i].image.slice(base.length)}`);
+}
+assert(collection.includes('CC BY 2.0'));
+assert(collection.includes('CC BY-SA 3.0'));
+assert(!html.includes(`${base}/credits/`));
+console.log('Passed: quote collection, portrait mapping, credits and optimized local image paths.');

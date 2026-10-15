@@ -3,22 +3,47 @@ import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import { href, formatDate } from '../config';
 import quotes from '../data/quotes.json';
-const firstQuote = quotes[0];
+import { portraits, portraitCredits } from '../data/portraits';
+const lineBreaks: Record<string, string[]> = {
+  munger: ['，'],
+  feynman: ['create, '],
+  dijkstra: ['is ', 'for '],
+};
+const dailyQuotes = quotes.map(quote => ({
+  ...quote,
+  displayText: (lineBreaks[quote.portrait] || []).reduce(
+    (text, marker) => text.replace(marker, `${marker.trimEnd()}\n`), quote.text,
+  ),
+  image: portraits[quote.portrait],
+  ...portraitCredits[quote.portrait],
+}));
+const firstQuote = dailyQuotes[0];
 const posts = (await getCollection('posts')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 <Layout>
-  <section class="intro" aria-labelledby="intro-title">
-    <p class="eyebrow">每日摘句 <span lang="en">DAILY QUOTE</span></p>
-    <h1 id="intro-title" class="daily-quote" lang={firstQuote.translation ? 'en' : 'zh-CN'}>{firstQuote.text}</h1>
-    <p id="quote-translation" class="quote-translation" hidden={!firstQuote.translation}>{firstQuote.translation}</p>
-    <p class="intro-description">— <span id="quote-author">{firstQuote.author}</span><cite id="quote-source">{firstQuote.source && ` · ${firstQuote.source}`}</cite></p>
+  <h1 class="visually-hidden">子毅的文章与摘句</h1>
+  <section class="daily-note" aria-labelledby="daily-label" data-quotes={JSON.stringify(dailyQuotes)}>
+    <div class="daily-note-copy" aria-live="polite" aria-atomic="true">
+      <div class="note-label"><h2 id="daily-label">每日摘句</h2></div>
+      <blockquote class="daily-quote" lang={firstQuote.translation ? 'en' : 'zh-CN'}><p id="quote-text">{firstQuote.displayText}</p></blockquote>
+      <p id="quote-translation" class="daily-translation" hidden={!firstQuote.translation}>{firstQuote.translation}</p>
+      <p class="daily-attribution"><span id="quote-author">{firstQuote.author}</span><span id="quote-source">{firstQuote.source && ` · ${firstQuote.source}`}</span></p>
+    </div>
+    <figure class="daily-portrait">
+      <a class="portrait-frame" id="quote-image-link" href={firstQuote.url} title={firstQuote.credit} aria-label={firstQuote.credit}><img data-person={firstQuote.portrait} id="quote-portrait" src={firstQuote.image} alt={firstQuote.author} width="300" height="350" fetchpriority="high" /></a>
+    </figure>
+      <div class="quote-controls" role="group" aria-label="摘句翻页">
+        <button type="button" id="quote-previous" aria-label="上一条摘句" hidden>←</button>
+        <span id="quote-number">01 / {String(quotes.length).padStart(2, '0')}</span>
+        <button type="button" id="quote-next" aria-label="下一条摘句" hidden>→</button>
+      </div>
   </section>
   <section class="writing" aria-labelledby="writing-title">
     <div class="section-heading"><h2 id="writing-title">文章</h2></div>
     <ol class="post-list">
       {posts.map((post) => <li>
         <a class="post-link" href={href(`posts/${post.id}/`)}>
-          <h3>{post.data.title}{post.data.sample && <span class="sample-label">示例</span>}</h3>
+          <div class="post-copy"><h3>{post.data.title}{post.data.sample && <span class="sample-label">示例</span>}</h3><p class="post-description">{post.data.description}</p></div>
           <div class="post-meta">
             <span class="post-category">{post.data.category}</span>
             <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
@@ -28,23 +53,52 @@ const posts = (await getCollection('posts')).sort((a, b) => b.data.date.valueOf(
     </ol>
   </section>
 </Layout>
-
 <script>
-  import quotes from '../data/quotes.json';
   import { quoteIndex } from '../quote';
-  function updateQuote() {
-    const quote = quotes[quoteIndex(quotes.length)];
-    const title = document.getElementById('intro-title')!;
-    title.textContent = quote.text;
-    title.lang = quote.translation ? 'en' : 'zh-CN';
+  const section = document.querySelector<HTMLElement>('.daily-note')!;
+  const quotes: { text: string; displayText: string; translation: string; author: string; source: string; image: string; portrait: string; url: string; credit: string }[] = JSON.parse(section.dataset.quotes!);
+  let current = -1;
+  let manuallySelected = false;
+  function showQuote(index: number) {
+    if (index === current) return;
+    current = index;
+    const quote = quotes[index];
+    const text = document.getElementById('quote-text')!;
+    text.textContent = quote.displayText;
+    text.closest('blockquote')!.lang = quote.translation ? 'en' : 'zh-CN';
     const translation = document.getElementById('quote-translation')!;
     translation.textContent = quote.translation;
     translation.hidden = !quote.translation;
     document.getElementById('quote-author')!.textContent = quote.author;
     document.getElementById('quote-source')!.textContent = quote.source ? ` · ${quote.source}` : '';
+    const portrait = document.getElementById('quote-portrait') as HTMLImageElement;
+    portrait.src = quote.image;
+    portrait.alt = quote.author;
+    portrait.dataset.person = quote.portrait;
+    const imageLink = document.getElementById('quote-image-link') as HTMLAnchorElement;
+    imageLink.href = quote.url;
+    imageLink.title = quote.credit;
+    imageLink.setAttribute('aria-label', quote.credit);
+    document.getElementById('quote-number')!.textContent = `${String(index + 1).padStart(2, '0')} / ${String(quotes.length).padStart(2, '0')}`;
+    if (manuallySelected && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      for (const element of [section.querySelector('.daily-note-copy')!, portrait]) {
+        element.animate([{ opacity: 0.25 }, { opacity: 1 }], { duration: 850, easing: 'ease-in-out' });
+      }
+    }
+  }
+  function updateQuote() {
+    if (!manuallySelected) showQuote(quoteIndex(quotes.length));
   }
   updateQuote();
-  // Recheck on returning to the tab, including after the device sleeps overnight.
-  document.addEventListener('visibilitychange', updateQuote);
+  const previous = document.getElementById('quote-previous') as HTMLButtonElement;
+  const next = document.getElementById('quote-next') as HTMLButtonElement;
+  for (const [button, direction] of [[previous, -1], [next, 1]] as const) {
+    button.hidden = quotes.length < 2;
+    button.addEventListener('click', () => {
+      manuallySelected = true;
+      showQuote((current + direction + quotes.length) % quotes.length);
+    });
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) updateQuote(); });
   setInterval(updateQuote, 60_000);
 </script>

@@ -1,0 +1,20 @@
+---
+import Layout from '../layouts/Layout.astro';
+import quotes from '../data/quotes.json';
+import { portraits, portraitCredits } from '../data/portraits';
+---
+<Layout title="摘句" description="一些愿意反复读的句子，关于理解、创造与简单。" section="quotes">
+  <h1 class="visually-hidden">摘句</h1>
+  <ol class="quote-collection">
+    {quotes.map((quote, index) => <li id={quote.portrait} class="quote-entry">
+      <span class="entry-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+      <div class="entry-copy">
+        <blockquote class="collected-quote" lang={quote.translation ? 'en' : 'zh-CN'}><p>{quote.text}</p></blockquote>
+        {quote.translation && <p class="collected-translation">{quote.translation}</p>}
+        <p class="collected-author">{quote.author}</p>
+        {quote.source && <p class="collected-source">{quote.source}</p>}
+      </div>
+      <a class="portrait-frame" href={portraitCredits[quote.portrait].url} title={portraitCredits[quote.portrait].credit} aria-label={portraitCredits[quote.portrait].credit}><img data-person={quote.portrait} class="collection-portrait" src={portraits[quote.portrait]} alt={quote.author} width="144" height="144" loading="lazy" /></a>
+    </li>)}
+  </ol>
+</Layout>

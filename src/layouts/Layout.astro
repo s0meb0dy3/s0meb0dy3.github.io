@@ -2,7 +2,7 @@
 import '../styles/global.css';
 import { site, href } from '../config';
 import monogram from '../assets/monogram.svg?url';
-interface Props { title?: string; description?: string; section?: 'posts' | 'about' }
+interface Props { title?: string; description?: string; section?: 'posts' | 'quotes' | 'about' }
 const { title, description = site.description, section = 'posts' } = Astro.props;
 ---
 <!doctype html>
@@ -23,6 +23,7 @@ const { title, description = site.description, section = 'posts' } = Astro.props
         <a class="brand" href={href()} aria-label={`${site.name}首页`}><img class="brand-mark" src={monogram} width="32" height="36" alt="" aria-hidden="true" />{site.name}</a>
         <nav aria-label="主导航">
           <a href={href()} aria-current={section === 'posts' ? 'page' : undefined}>文章</a>
+          <a href={href('quotes/')} aria-current={section === 'quotes' ? 'page' : undefined}>摘句</a>
           <a href={href('about/')} aria-current={section === 'about' ? 'page' : undefined}>关于</a>
         </nav>
       </header>
